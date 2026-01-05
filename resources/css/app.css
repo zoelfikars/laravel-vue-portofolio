@@ -4,8 +4,110 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../**/*.vue';
+
+@plugin 'tailwindcss-animate';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Define semantic colors mapping to CSS variables */
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-bg-base: var(--bg-base);
+    --color-bg-card: var(--bg-card);
+    --color-bg-input: var(--bg-input);
+
+    --color-text-base: var(--text-base);
+    --color-text-muted: var(--text-muted);
+
+    --color-border-base: var(--border-base);
+}
+
+/* CSS Variables Definition */
+:root {
+    /* Default Primary (Blue) - Can be overridden/switched via data-primary attribute */
+    --primary: #2563eb;
+    /* blue-600 */
+    --primary-foreground: #ffffff;
+
+    /* Light Mode Base Colors */
+    --bg-base: #f3f4f6;
+    /* gray-100 */
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+
+    --text-base: #1f2937;
+    /* gray-800 */
+    --text-muted: #6b7280;
+    /* gray-500 */
+
+    --border-base: #e5e7eb;
+    /* gray-200 */
+}
+
+/* Dark Mode Overrides */
+.dark {
+    --bg-base: #0d1117;
+    /* GitHub Dark */
+    --bg-card: #161b22;
+    --bg-input: #0d1117;
+
+    --text-base: #c9d1d9;
+    --text-muted: #8b949e;
+
+    --border-base: #30363d;
+}
+
+/* Dynamic Primary Colors */
+:root[data-primary="blue"] {
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="green"] {
+    --primary: #238636;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="red"] {
+    --primary: #dc2626;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="purple"] {
+    --primary: #9333ea;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="orange"] {
+    --primary: #ea580c;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="teal"] {
+    --primary: #0d9488;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="emerald"] {
+    --primary: #059669;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="indigo"] {
+    --primary: #4f46e5;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="rose"] {
+    --primary: #e11d48;
+    --primary-foreground: #ffffff;
+}
+
+:root[data-primary="amber"] {
+    --primary: #d97706;
+    --primary-foreground: #ffffff;
 }
