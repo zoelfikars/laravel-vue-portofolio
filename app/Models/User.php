@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\User\Models\Experience;
 use App\Modules\User\Models\Hobby;
 use App\Modules\User\Models\Skill;
 use App\Modules\UserProfile\Models\UserProfile;
@@ -46,5 +47,10 @@ class User extends Authenticatable
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'skill_user');
+    }
+
+    public function experiences()
+    {
+        return $this->hasMany(Experience::class);
     }
 }

@@ -5,6 +5,7 @@ use App\Modules\UserProfile\Controllers\PublicProfileController;
 use App\Modules\UserProfile\Controllers\UserProfileController;
 use App\Modules\User\Controllers\HobbyController;
 use App\Modules\User\Controllers\SkillController;
+use App\Modules\User\Controllers\ExperienceController;
 use Illuminate\Support\Facades\Route;
 use App\Modules\Auth\Controllers\AuthController;
 
@@ -20,8 +21,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/users/{user}/profile/cv', [UserProfileController::class, 'downloadCv'])->name('users.profile.cv');
 
         Route::get('/hobbies', [HobbyController::class, 'index']);
-
         Route::get('/skills', [SkillController::class, 'index']);
+        
+        Route::get('/users/{user}/experiences', [ExperienceController::class, 'index']);
+        Route::post('/users/{user}/experiences', [ExperienceController::class, 'store']);
+        Route::put('/experiences/{experience}', [ExperienceController::class, 'update']);
+        Route::delete('/experiences/{experience}', [ExperienceController::class, 'destroy']);
     });
 });
 

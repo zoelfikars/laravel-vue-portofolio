@@ -9,6 +9,8 @@ import BaseTagInput from "../../../components/BaseTagInput.vue";
 import BaseFileUpload from "../../../components/BaseFileUpload.vue";
 import BaseButton from "../../../components/BaseButton.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
+import BaseTabs from "../../../components/BaseTabs.vue";
+import ExperienceManager from "./ExperienceManager.vue";
 
 const props = defineProps({
     user: {
@@ -37,6 +39,13 @@ const form = reactive({
 
 const existingPhotoUrl = ref("");
 const existingCvUrl = ref("");
+const activeTab = ref("general");
+
+const tabs = [
+    { label: "General Info", value: "general" },
+    { label: "Skills & Hobbies", value: "skills" },
+    { label: "Work Experience", value: "experience" },
+];
 
 const fetchProfile = async () => {
     isLoadingData.value = true;
@@ -83,112 +92,134 @@ onMounted(() => {
             <BaseSkeleton height="10rem" />
         </div>
 
-        <form v-else @submit.prevent="submit" class="space-y-6">
-            <!-- Basic Info -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <BaseInput
-                    v-model="form.full_name"
-                    label="Full Name"
-                    placeholder="Enter full name"
-                    :error="userStore.errors.full_name?.[0]"
-                />
+        <div v-else class="space-y-6">
+            <!-- Tabs Navigation -->
+            <BaseTabs :tabs="tabs" v-model="activeTab" />
 
-                <BaseInput
-                    v-model="form.work_interest"
-                    label="Work Interest"
-                    placeholder="e.g. Full Stack Developer"
-                    :error="userStore.errors.work_interest?.[0]"
-                />
-            </div>
+            <form @submit.prevent="submit" class="space-y-6">
+                <!-- General Tab -->
+                <div v-show="activeTab === 'general'" class="space-y-6">
+                    <!-- Basic Info -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <BaseInput
+                            v-model="form.full_name"
+                            label="Full Name"
+                            placeholder="Enter full name"
+                            :error="userStore.errors.full_name?.[0]"
+                        />
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <BaseInput
-                    v-model="form.place_of_birth"
-                    label="Place of Birth"
-                    placeholder="City name"
-                    :error="userStore.errors.place_of_birth?.[0]"
-                />
-                <BaseDateInput
-                    v-model="form.date_of_birth"
-                    label="Date of Birth"
-                    :error="userStore.errors.date_of_birth?.[0]"
-                />
-            </div>
+                        <BaseInput
+                            v-model="form.work_interest"
+                            label="Work Interest"
+                            placeholder="e.g. Full Stack Developer"
+                            :error="userStore.errors.work_interest?.[0]"
+                        />
+                    </div>
 
-            <BaseTextarea
-                v-model="form.summary"
-                label="Summary"
-                placeholder="Brief professional summary..."
-                :rows="4"
-                :error="userStore.errors.summary?.[0]"
-            />
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <BaseInput
+                            v-model="form.place_of_birth"
+                            label="Place of Birth"
+                            placeholder="City name"
+                            :error="userStore.errors.place_of_birth?.[0]"
+                        />
+                        <BaseDateInput
+                            v-model="form.date_of_birth"
+                            label="Date of Birth"
+                            :error="userStore.errors.date_of_birth?.[0]"
+                        />
+                    </div>
 
-            <!-- File Uploads -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <BaseFileUpload
-                    v-model="form.photo"
-                    label="Profile Photo"
-                    accept="image/*"
-                    :previewUrl="existingPhotoUrl"
-                    :error="userStore.errors.photo?.[0]"
-                />
+                    <BaseTextarea
+                        v-model="form.summary"
+                        label="Summary"
+                        placeholder="Brief professional summary..."
+                        :rows="4"
+                        :error="userStore.errors.summary?.[0]"
+                    />
 
-                <BaseFileUpload
-                    v-model="form.cv"
-                    label="Curriculum Vitae (PDF)"
-                    accept="application/pdf"
-                    :previewUrl="existingCvUrl"
-                    :error="userStore.errors.cv?.[0]"
-                />
-            </div>
+                    <!-- File Uploads -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <BaseFileUpload
+                            v-model="form.photo"
+                            label="Profile Photo"
+                            accept="image/*"
+                            :previewUrl="existingPhotoUrl"
+                            :error="userStore.errors.photo?.[0]"
+                        />
 
-            <!-- Hobbies -->
-            <BaseTagInput
-                v-model="form.hobbies"
-                label="Hobbies & Interests"
-                placeholder="Type and press Enter (e.g. Hiking, Photography)"
-                :error="userStore.errors.hobbies?.[0]"
-            />
+                        <BaseFileUpload
+                            v-model="form.cv"
+                            label="Curriculum Vitae (PDF)"
+                            accept="application/pdf"
+                            :previewUrl="existingCvUrl"
+                            :error="userStore.errors.cv?.[0]"
+                        />
+                    </div>
+                </div>
 
-            <!-- Skills -->
-            <BaseTagInput
-                v-model="form.skills"
-                label="Skills & Expertise"
-                fetchUrl="/api/skills"
-                placeholder="e.g. Laravel, Vue.js, DevOps"
-                :error="userStore.errors.skills?.[0]"
-            />
+                <!-- Skills Content -->
+                <div v-show="activeTab === 'skills'" class="space-y-6">
+                    <!-- Hobbies -->
+                    <BaseTagInput
+                        v-model="form.hobbies"
+                        label="Hobbies & Interests"
+                        placeholder="Type and press Enter (e.g. Hiking, Photography)"
+                        :error="userStore.errors.hobbies?.[0]"
+                    />
 
-            <!-- Settings -->
-            <div class="pt-4 border-t border-border-base">
-                <BaseToggle
-                    v-model="form.is_active"
-                    label="Set as Active Portfolio Profile"
-                    :error="userStore.errors.is_active?.[0]"
-                />
-                <p class="mt-1 text-xs text-text-muted">
-                    If enabled, this profile will be visible on the public
-                    portfolio site.
-                </p>
-            </div>
+                    <!-- Skills -->
+                    <BaseTagInput
+                        v-model="form.skills"
+                        label="Skills & Expertise"
+                        fetchUrl="/api/skills"
+                        placeholder="e.g. Laravel, Vue.js, DevOps"
+                        :error="userStore.errors.skills?.[0]"
+                    />
+                </div>
 
-            <!-- Actions -->
-            <div class="flex justify-end gap-3 pt-4">
-                <BaseButton
-                    type="button"
-                    variant="secondary"
-                    @click="$emit('cancel')"
+                <!-- Experience Tab -->
+                <div v-show="activeTab === 'experience'" class="space-y-6">
+                    <ExperienceManager :userId="user.id" />
+                </div>
+
+                <!-- Settings (Global) -->
+                <div
+                    class="pt-4 border-t border-border-base"
+                    v-show="activeTab !== 'experience'"
                 >
-                    Cancel
-                </BaseButton>
-                <BaseButton
-                    type="submit"
-                    variant="primary"
-                    :isLoading="userStore.isLoading"
+                    <BaseToggle
+                        v-model="form.is_active"
+                        label="Set as Active Portfolio Profile"
+                        :error="userStore.errors.is_active?.[0]"
+                    />
+                    <p class="mt-1 text-xs text-text-muted">
+                        If enabled, this profile will be visible on the public
+                        portfolio site.
+                    </p>
+                </div>
+
+                <!-- Actions (Global except Experience which has its own) -->
+                <div
+                    class="flex justify-end gap-3 pt-4"
+                    v-show="activeTab !== 'experience'"
                 >
-                    Save Changes
-                </BaseButton>
-            </div>
-        </form>
+                    <BaseButton
+                        type="button"
+                        variant="secondary"
+                        @click="$emit('cancel')"
+                    >
+                        Cancel
+                    </BaseButton>
+                    <BaseButton
+                        type="submit"
+                        variant="primary"
+                        :isLoading="userStore.isLoading"
+                    >
+                        Save Changes
+                    </BaseButton>
+                </div>
+            </form>
+        </div>
     </div>
 </template>

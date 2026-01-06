@@ -168,5 +168,76 @@ export const useUserStore = defineStore("user", {
                 this.isLoading = false;
             }
         },
+
+        // Experience Actions
+        async fetchExperiences(userId) {
+            try {
+                const response = await axios.get(
+                    `/api/users/${userId}/experiences`
+                );
+                return response.data.data;
+            } catch (error) {
+                console.error("Failed to fetch experiences:", error);
+                return [];
+            }
+        },
+
+        async addExperience(userId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.post(`/api/users/${userId}/experiences`, payload);
+                notificationStore.success("Experience added successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Failed to add experience"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async updateExperience(experienceId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.put(`/api/experiences/${experienceId}`, payload);
+                notificationStore.success("Experience updated successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Failed to update experience"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async deleteExperience(experienceId) {
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.delete(`/api/experiences/${experienceId}`);
+                notificationStore.success("Experience deleted successfully");
+                return true;
+            } catch (error) {
+                notificationStore.error("Failed to delete experience");
+                return false;
+            }
+        },
     },
 });
