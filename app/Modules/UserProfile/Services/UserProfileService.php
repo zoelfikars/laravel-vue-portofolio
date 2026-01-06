@@ -6,28 +6,34 @@ use App\Models\User;
 use App\Modules\User\Models\Hobby;
 use App\Modules\User\Models\Skill;
 use App\Modules\UserProfile\Models\UserProfile;
+use App\Traits\FileUpload;
 use Illuminate\Support\Facades\Storage;
 use Str;
 
 class UserProfileService
 {
+    use FileUpload;
     public function getProfile(User $user)
     {
-        $user->load(['hobbies', 'skills']);
-        return $user->profile;
+        $user->load(['hobbies', 'skills', 'experiences', 'projects', 'contacts']);
+        $profile = $user->profile;
+        if ($profile) {
+            $profile->setRelation('user', $user);
+        }
+        return $profile;
     }
 
     public function saveProfile(User $user, array $data, $files = [])
     {
         if (isset($files['photo'])) {
-            $data['photo_path'] = $this->handleFileUpload(
+            $data['photo_path'] = $this->uploadFile(
                 $files['photo'],
                 'profiles/photos',
                 $user->profile->photo_path ?? null
             );
         }
         if (isset($files['cv'])) {
-            $data['cv_path'] = $this->handleFileUpload(
+            $data['cv_path'] = $this->uploadFile(
                 $files['cv'],
                 'profiles/cvs',
                 $user->profile->cv_path ?? null
@@ -61,7 +67,10 @@ class UserProfileService
             $data
         );
     }
-
+    public function getHomeData()
+    {
+        return $this->getActiveProfile();
+    }
     public function getActiveProfile()
     {
         return UserProfile::where('is_active', true)
@@ -69,13 +78,25 @@ class UserProfileService
                 'user' => function ($query) {
                     $query->select('id', 'name', 'email')
                         ->with([
-                            'skills:id,name',           
-                            'hobbies:id,name',          
-                            'experiences',              
-                            'projects' => function ($q) { 
-                                $q->whereNotNull('published_at')
+                            'skills:id,name',
+                            'hobbies:id,name',
+                            'experiences',
+                            'contacts',
+                            'projects' => function ($q) {
+                                $q->select([
+                                    'id',
+                                    'user_id',
+                                    'title',
+                                    'slug',
+                                    'thumbnail_path',
+                                    'description',
+                                    'demo_url',
+                                    'repository_url',
+                                    'published_at'
+                                ])
+                                    ->whereNotNull('published_at')
                                     ->orderBy('published_at', 'desc')
-                                    ->with('techStack:id,name'); 
+                                    ->with('techStack:id,name');
                             }
                         ]);
                 }
@@ -97,11 +118,18 @@ class UserProfileService
         }
         return null;
     }
-    private function handleFileUpload($file, $path, $oldPath = null)
+    public function verifyCvPath($profile)
     {
-        if ($oldPath && Storage::exists($oldPath)) {
-            Storage::delete($oldPath);
+        $path = $profile->cv_path;
+        if (!$path || !Storage::exists($path)) {
+            return null;
         }
-        return $file->store($path);
+        return $path;
+    }
+    public function getActiveUser(): ?User
+    {
+        $profile = UserProfile::where('is_active', true)->with('user')->first();
+        return $profile ? $profile->user : null;
     }
 }
+

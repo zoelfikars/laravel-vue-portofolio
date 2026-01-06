@@ -5,10 +5,11 @@ import AppLayout from "../../../layouts/AppLayout.vue";
 import BaseCard from "../../../components/BaseCard.vue";
 import BaseButton from "../../../components/BaseButton.vue";
 import BaseInput from "../../../components/BaseInput.vue";
+import BaseSearchInput from "../../../components/BaseSearchInput.vue";
 import BaseModal from "../../../components/BaseModal.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
 import UserProfileForm from "../components/UserProfileForm.vue";
-import { Edit2, Trash2, Plus, Search, UserCog } from "lucide-vue-next";
+import { Edit2, Trash2, Plus, UserCog } from "lucide-vue-next";
 
 const userStore = useUserStore();
 
@@ -150,20 +151,11 @@ onMounted(() => {
                     class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto"
                 >
                     <!-- Search -->
-                    <div class="relative w-full sm:w-64">
-                        <div
-                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                        >
-                            <Search class="h-4 w-4 text-text-muted" />
-                        </div>
-                        <input
-                            v-model="searchQuery"
-                            @input="onSearch"
-                            type="text"
-                            class="bg-bg-input border border-border-base text-text-base text-sm rounded-md focus:ring-primary focus:border-primary block w-full pl-10 p-2.5 transition-colors duration-200"
-                            placeholder="Search users..."
-                        />
-                    </div>
+                    <BaseSearchInput
+                        v-model="searchQuery"
+                        @update:model-value="onSearch"
+                        placeholder="Search users..."
+                    />
 
                     <BaseButton
                         @click="openCreateModal"

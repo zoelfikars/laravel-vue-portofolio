@@ -6,6 +6,7 @@ use App\Modules\Project\Models\Project;
 use App\Modules\User\Models\Experience;
 use App\Modules\User\Models\Hobby;
 use App\Modules\User\Models\Skill;
+use App\Modules\User\Models\UserContact;
 use App\Modules\UserProfile\Models\UserProfile;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -57,5 +58,9 @@ class User extends Authenticatable
     public function projects()
     {
         return $this->hasMany(Project::class);
+    }
+    public function contacts()
+    {
+        return $this->hasMany(UserContact::class);
     }
 }

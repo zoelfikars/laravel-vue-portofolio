@@ -1,14 +1,17 @@
 <?php
 
-use App\Modules\User\Controllers\UserController;
-use App\Modules\UserProfile\Controllers\PublicProfileController;
-use App\Modules\UserProfile\Controllers\UserProfileController;
-use App\Modules\User\Controllers\HobbyController;
-use App\Modules\User\Controllers\SkillController;
-use App\Modules\User\Controllers\ExperienceController;
-use App\Modules\Project\Controllers\ProjectController;
-use Illuminate\Support\Facades\Route;
 use App\Modules\Auth\Controllers\AuthController;
+use App\Modules\Project\Controllers\Admin\ProjectController;
+use App\Modules\Project\Controllers\Public\PublicProjectController;
+use App\Modules\User\Controllers\Admin\ExperienceController;
+use App\Modules\User\Controllers\Admin\HobbyController;
+use App\Modules\User\Controllers\Admin\SkillController;
+use App\Modules\User\Controllers\Admin\UserContactController;
+use App\Modules\User\Controllers\Admin\UserController;
+use App\Modules\User\Controllers\Public\PublicExperienceController;
+use App\Modules\UserProfile\Controllers\Admin\UserProfileController;
+use App\Modules\UserProfile\Controllers\Public\PublicProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -30,6 +33,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/experiences/{experience}', [ExperienceController::class, 'update']);
         Route::delete('/experiences/{experience}', [ExperienceController::class, 'destroy']);
 
+        Route::get('/users/{user}/contacts', [UserContactController::class, 'index']);
+        Route::post('/users/{user}/contacts', [UserContactController::class, 'store']);
+        Route::put('/contacts/{contact}', [UserContactController::class, 'update']);
+        Route::delete('/contacts/{contact}', [UserContactController::class, 'destroy']);
+
         // Admin project routes
         Route::get('/users/{user}/projects', [ProjectController::class, 'index']);
         Route::post('/users/{user}/projects', [ProjectController::class, 'store']);
@@ -39,10 +47,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-Route::prefix('public/profile')->group(function () {
-    Route::get('/active', [PublicProfileController::class, 'getActive']);
-    Route::get('/photo/{id}', [PublicProfileController::class, 'streamPhoto'])->name('public.profile.photo');
-    Route::get('/cv/{id}', [PublicProfileController::class, 'downloadCv'])->name('public.profile.cv');
-    Route::get('/project/thumbnail/{id}', [PublicProfileController::class, 'streamProjectThumbnail'])
-        ->name('public.project.thumbnail');
+Route::prefix('public')->group(function () {
+    // Home (Profile + Preview Exp/Proj)
+    Route::get('/home', [PublicProfileController::class, 'getHome']);
+
+    // Assets Stream
+    Route::get('/profile/photo/{id}', [PublicProfileController::class, 'streamPhoto'])->name('public.profile.photo');
+    Route::get('/profile/cv/{id}', [PublicProfileController::class, 'downloadCv'])->name('public.profile.cv');
+    Route::get('/project/thumbnail/{id}', [PublicProfileController::class, 'streamProjectThumbnail'])->name('public.project.thumbnail');
+
+    // Dedicated Lists
+    Route::get('/experiences', [PublicExperienceController::class, 'index']);
+    Route::get('/projects', [PublicProjectController::class, 'index']);
+    Route::get('/projects/{slug}', [PublicProjectController::class, 'show']);
 });

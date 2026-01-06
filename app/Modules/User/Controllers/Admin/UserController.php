@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\User\Controllers;
+namespace App\Modules\User\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Modules\User\Requests\StoreUserRequest;

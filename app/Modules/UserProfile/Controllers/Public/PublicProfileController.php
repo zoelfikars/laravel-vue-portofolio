@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\UserProfile\Controllers;
+namespace App\Modules\UserProfile\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Project\Models\Project;
@@ -9,7 +9,6 @@ use App\Modules\UserProfile\Resources\UserProfileResource;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Storage;
 use Log;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicProfileController extends Controller
 {
@@ -22,15 +21,15 @@ class PublicProfileController extends Controller
         $this->service = $service;
     }
 
-    public function getActive()
+    public function getHome()
     {
-        $profile = $this->service->getActiveProfile();
+        $profile = $this->service->getHomeData();
 
         if (!$profile) {
-            return $this->error('Profil aktif tidak ditemukan', 404);
+            return $this->error('Valid active profile not found', 404);
         }
 
-        return $this->success(new UserProfileResource($profile), 'Berhasil mengambil data profil aktif');
+        return $this->success(new UserProfileResource($profile), 'Home data retrieved successfully');
     }
 
     public function streamPhoto($id)

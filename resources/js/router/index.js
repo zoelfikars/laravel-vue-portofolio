@@ -1,9 +1,53 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouterView } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { h } from "vue";
 import DashboardPage from "../features/dashboard/pages/DashboardPage.vue";
 import LoginPage from "../features/auth/pages/LoginPage.vue";
 
+import PublicLayout from "../layouts/PublicLayout.vue";
+import HomeView from "../features/public/pages/HomeView.vue";
+
 const routes = [
+    {
+        path: "/",
+        component: PublicLayout,
+        children: [
+            {
+                path: "",
+                name: "Home",
+                component: HomeView,
+            },
+            {
+                path: "experiences",
+                name: "Experiences",
+                component: () =>
+                    import("../features/public/pages/ExperienceListView.vue"),
+            },
+            {
+                path: "projects",
+                component: { render: () => h(RouterView) },
+                children: [
+                    {
+                        path: "",
+                        name: "Projects",
+                        component: () =>
+                            import(
+                                "../features/public/pages/ProjectListView.vue"
+                            ),
+                    },
+                    {
+                        path: ":slug",
+                        name: "ProjectDetail",
+                        component: () =>
+                            import(
+                                "../features/public/pages/ProjectDetailView.vue"
+                            ),
+                        props: true,
+                    },
+                ],
+            },
+        ],
+    },
     {
         path: "/login",
         name: "Login",
@@ -22,15 +66,13 @@ const routes = [
         component: () => import("../features/users/pages/UserListPage.vue"),
         meta: { requiresAuth: true },
     },
-    {
-        path: "/",
-        redirect: "/login",
-    },
 ];
+
 const router = createRouter({
     history: createWebHistory(),
     routes,
 });
+
 router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
     if (!authStore.user && !authStore.isAuthCheckDone) {

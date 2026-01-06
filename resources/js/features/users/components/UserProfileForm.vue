@@ -11,6 +11,8 @@ import BaseButton from "../../../components/BaseButton.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
 import BaseTabs from "../../../components/BaseTabs.vue";
 import ExperienceManager from "./ExperienceManager.vue";
+import ProjectManager from "./ProjectManager.vue";
+import UserContactManager from "./UserContactManager.vue";
 
 const props = defineProps({
     user: {
@@ -45,6 +47,8 @@ const tabs = [
     { label: "General Info", value: "general" },
     { label: "Skills & Hobbies", value: "skills" },
     { label: "Work Experience", value: "experience" },
+    { label: "Projects", value: "projects" },
+    { label: "Contacts", value: "contacts" },
 ];
 
 const fetchProfile = async () => {
@@ -183,10 +187,24 @@ onMounted(() => {
                     <ExperienceManager :userId="user.id" />
                 </div>
 
+                <!-- Projects Tab -->
+                <div v-show="activeTab === 'projects'" class="space-y-6">
+                    <ProjectManager :userId="user.id" />
+                </div>
+
+                <!-- Contacts Tab -->
+                <div v-show="activeTab === 'contacts'" class="space-y-6">
+                    <UserContactManager :userId="user.id" />
+                </div>
+
                 <!-- Settings (Global) -->
                 <div
                     class="pt-4 border-t border-border-base"
-                    v-show="activeTab !== 'experience'"
+                    v-show="
+                        !['experience', 'projects', 'contacts'].includes(
+                            activeTab
+                        )
+                    "
                 >
                     <BaseToggle
                         v-model="form.is_active"
@@ -199,10 +217,14 @@ onMounted(() => {
                     </p>
                 </div>
 
-                <!-- Actions (Global except Experience which has its own) -->
+                <!-- Actions (Global except sub-managers) -->
                 <div
                     class="flex justify-end gap-3 pt-4"
-                    v-show="activeTab !== 'experience'"
+                    v-show="
+                        !['experience', 'projects', 'contacts'].includes(
+                            activeTab
+                        )
+                    "
                 >
                     <BaseButton
                         type="button"

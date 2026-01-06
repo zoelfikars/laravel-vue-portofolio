@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Project\Controllers;
+namespace App\Modules\Project\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -25,11 +25,7 @@ class ProjectController extends Controller
 
     public function index(Request $request, User $user)
     {
-        $projects = $user->projects()
-            ->with('techStack')
-            ->latest()
-            ->paginate(10);
-
+        $projects = $this->projectService->list($user, $request->all());
         return $this->success(ProjectResource::collection($projects));
     }
     public function store(ProjectRequest $request, User $user)
@@ -40,7 +36,7 @@ class ProjectController extends Controller
     }
     public function show($id)
     {
-        $project = Project::with('techStack')->findOrFail($id);
+        $project = $this->projectService->getById($id);
         $this->authorize('view', $project);
         return $this->success(new ProjectResource($project));
     }

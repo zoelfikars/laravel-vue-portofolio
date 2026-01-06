@@ -11,7 +11,11 @@ class UserService
 {
     public function list(array $params): LengthAwarePaginator
     {
-        $query = User::query()->with('roles');
+        $query = User::query()
+            ->with('roles')
+            ->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'super-admin');
+            });
 
         if (isset($params['search']) && $params['search']) {
             $search = $params['search'];

@@ -13,6 +13,63 @@ use Illuminate\Http\UploadedFile;
 class ProjectService
 {
     use FileUpload;
+    public function list(User $user, array $params)
+    {
+        $query = $user->projects()
+            ->with('techStack')
+            ->latest();
+
+        if (isset($params['search']) && $params['search']) {
+            $search = $params['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', "%{$search}%")
+                    ->orWhereHas('techStack', function ($q) use ($search) {
+                        $q->where('name', 'ilike', "%{$search}%");
+                    });
+            });
+        }
+
+        $perPage = $params['per_page'] ?? 10;
+
+        return $query->paginate($perPage);
+    }
+
+    public function listPublic(User $user, array $params)
+    {
+        $query = $user->projects()
+            ->whereNotNull('published_at')
+            ->with('techStack')
+            ->latest('published_at');
+
+        if (isset($params['search']) && $params['search']) {
+            $search = $params['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', "%{$search}%")
+                    ->orWhereHas('techStack', function ($q) use ($search) {
+                        $q->where('name', 'ilike', "%{$search}%");
+                    });
+            });
+        }
+
+        $perPage = $params['per_page'] ?? 10;
+
+        return $query->paginate($perPage);
+    }
+
+    public function getBySlug(User $user, string $slug): ?Project
+    {
+        return $user->projects()
+            ->where('slug', $slug)
+            ->whereNotNull('published_at')
+            ->with('techStack')
+            ->first();
+    }
+
+    public function getById($id): Project
+    {
+        return Project::with('techStack')->findOrFail($id);
+    }
+
     public function createProject(User $user, array $data): Project
     {
         $data['slug'] = $this->generateUniqueSlug($data['title']);

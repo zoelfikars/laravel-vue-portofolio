@@ -2,6 +2,7 @@
 
 namespace App\Modules\UserProfile\Resources;
 
+use App\Modules\Project\Resources\ProjectListResource;
 use App\Modules\Project\Resources\ProjectResource;
 use App\Modules\User\Resources\ExperienceResource;
 use Illuminate\Http\Request;
@@ -37,7 +38,8 @@ class UserProfileResource extends JsonResource
             $data['skills'] = $this->user->skills->pluck('name');
             $data['hobbies'] = $this->user->hobbies->pluck('name');
             $data['experiences'] = ExperienceResource::collection($this->user->experiences);
-            $data['projects'] = ProjectResource::collection($this->user->projects);
+            $data['projects'] = ProjectListResource::collection($this->user->projects);
+            $data['contacts'] = $this->user->contacts;
         }
         return $data;
     }

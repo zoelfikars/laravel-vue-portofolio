@@ -169,11 +169,11 @@ export const useUserStore = defineStore("user", {
             }
         },
 
-        // Experience Actions
-        async fetchExperiences(userId) {
+        async fetchExperiences(userId, params = {}) {
             try {
                 const response = await axios.get(
-                    `/api/users/${userId}/experiences`
+                    `/api/users/${userId}/experiences`,
+                    { params }
                 );
                 return response.data.data;
             } catch (error) {
@@ -236,6 +236,159 @@ export const useUserStore = defineStore("user", {
                 return true;
             } catch (error) {
                 notificationStore.error("Failed to delete experience");
+                return false;
+            }
+        },
+
+        async fetchProjects(userId, params = {}) {
+            try {
+                const response = await axios.get(
+                    `/api/users/${userId}/projects`,
+                    { params }
+                );
+                return response.data.data;
+            } catch (error) {
+                console.error("Failed to fetch projects:", error);
+                return [];
+            }
+        },
+
+        async createProject(userId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                // Prepare FormData (handled mostly by component, but ensure it is FormData)
+                // If payload is already FormData, axios handles it.
+                // Assuming component sends FormData for file upload support.
+
+                await axios.post(`/api/users/${userId}/projects`, payload, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                notificationStore.success("Project created successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Failed to create project"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async updateProject(projectId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                // Update with file requires POST and _method=PUT or just POST if backend handles it (Laravel resource update usually PUT/PATCH)
+                // But for files, we often use POST with _method.
+                // The prompt says: "backend Update uses POST (to handle file), make sure payload sent via standard POST."
+
+                await axios.post(`/api/projects/${projectId}`, payload, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+                notificationStore.success("Project updated successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Failed to update project"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async deleteProject(projectId) {
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.delete(`/api/projects/${projectId}`);
+                notificationStore.success("Project deleted successfully");
+                return true;
+            } catch (error) {
+                notificationStore.error("Failed to delete project");
+                return false;
+            }
+        },
+
+        // Contact Actions
+        async fetchContacts(userId) {
+            try {
+                const response = await axios.get(
+                    `/api/users/${userId}/contacts`
+                );
+                return response.data.data;
+            } catch (error) {
+                console.error("Failed to fetch contacts:", error);
+                return [];
+            }
+        },
+
+        async addContact(userId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.post(`/api/users/${userId}/contacts`, payload);
+                notificationStore.success("Contact added successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message || "Failed to add contact"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async updateContact(contactId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.put(`/api/contacts/${contactId}`, payload);
+                notificationStore.success("Contact updated successfully");
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Failed to update contact"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async deleteContact(contactId) {
+            const notificationStore = useNotificationStore();
+            try {
+                await axios.delete(`/api/contacts/${contactId}`);
+                notificationStore.success("Contact deleted successfully");
+                return true;
+            } catch (error) {
+                notificationStore.error("Failed to delete contact");
                 return false;
             }
         },

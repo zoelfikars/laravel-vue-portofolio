@@ -8,6 +8,7 @@ import {
     Edit2,
     Trash2,
     Calendar,
+    AlertCircle,
 } from "lucide-vue-next";
 import BaseButton from "../../../components/BaseButton.vue";
 import BaseInput from "../../../components/BaseInput.vue";
@@ -15,6 +16,9 @@ import BaseDateInput from "../../../components/BaseDateInput.vue";
 import BaseToggle from "../../../components/BaseToggle.vue";
 import BaseTextarea from "../../../components/BaseTextarea.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
+import BaseModal from "../../../components/BaseModal.vue";
+import BaseSearchInput from "../../../components/BaseSearchInput.vue";
+import { watch } from "vue";
 
 const props = defineProps({
     userId: {
@@ -28,6 +32,12 @@ const experiences = ref([]);
 const isLoading = ref(false);
 const viewMode = ref("list"); // 'list' | 'form'
 const isEditing = ref(false);
+const search = ref("");
+let searchTimeout = null;
+
+// Delete Modal State
+const isDeleteModalOpen = ref(false);
+const experienceToDelete = ref(null);
 
 const form = reactive({
     id: null,
@@ -42,9 +52,19 @@ const form = reactive({
 
 const fetchExperiences = async () => {
     isLoading.value = true;
-    experiences.value = await userStore.fetchExperiences(props.userId);
+    experiences.value = await userStore.fetchExperiences(props.userId, {
+        search: search.value,
+    });
     isLoading.value = false;
 };
+
+// Debounce search
+watch(search, () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        fetchExperiences();
+    }, 500);
+});
 
 const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -108,13 +128,27 @@ const saveExperience = async () => {
     }
 };
 
-const deleteExperience = async (id) => {
-    if (confirm("Are you sure you want to delete this experience?")) {
-        const success = await userStore.deleteExperience(id);
-        if (success) {
-            await fetchExperiences();
-        }
+const confirmDelete = (exp) => {
+    experienceToDelete.value = exp;
+    isDeleteModalOpen.value = true;
+};
+
+const handleDelete = async () => {
+    if (!experienceToDelete.value) return;
+
+    const success = await userStore.deleteExperience(
+        experienceToDelete.value.id
+    );
+    if (success) {
+        await fetchExperiences();
+        isDeleteModalOpen.value = false;
+        experienceToDelete.value = null;
     }
+};
+
+const cancelDelete = () => {
+    isDeleteModalOpen.value = false;
+    experienceToDelete.value = null;
 };
 
 onMounted(() => {
@@ -125,14 +159,24 @@ onMounted(() => {
 <template>
     <div class="space-y-4">
         <!-- Header / Add Button -->
-        <div
-            v-if="viewMode === 'list'"
-            class="flex justify-between items-center mb-4"
-        >
-            <h3 class="text-lg font-medium text-text-base">Work Experience</h3>
-            <BaseButton size="sm" @click="openAddForm">
-                <Plus class="w-4 h-4 mr-1" /> Add Experience
-            </BaseButton>
+        <div v-if="viewMode === 'list'">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4"
+            >
+                <h3 class="text-lg font-medium text-text-base">
+                    Work Experience
+                </h3>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <BaseSearchInput
+                        v-model="search"
+                        placeholder="Search experience..."
+                    />
+                    <BaseButton size="sm" @click="openAddForm" class="shrink-0">
+                        <Plus class="w-4 h-4 sm:mr-1" />
+                        <span class="hidden sm:inline">Add Experience</span>
+                    </BaseButton>
+                </div>
+            </div>
         </div>
 
         <!-- Loading State -->
@@ -178,13 +222,15 @@ onMounted(() => {
                             </div>
                             <div class="flex space-x-1">
                                 <button
+                                    type="button"
                                     @click="openEditForm(exp)"
                                     class="p-1 text-text-muted hover:text-primary transition-colors"
                                 >
                                     <Edit2 class="w-4 h-4" />
                                 </button>
                                 <button
-                                    @click="deleteExperience(exp.id)"
+                                    type="button"
+                                    @click="confirmDelete(exp)"
                                     class="p-1 text-text-muted hover:text-red-500 transition-colors"
                                 >
                                     <Trash2 class="w-4 h-4" />
@@ -230,7 +276,7 @@ onMounted(() => {
                 {{ isEditing ? "Edit Experience" : "Add Experience" }}
             </h3>
 
-            <form @submit.prevent="saveExperience" class="space-y-4">
+            <div class="space-y-4" @keydown.enter.prevent="saveExperience">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <BaseInput
                         v-model="form.position"
@@ -296,13 +342,60 @@ onMounted(() => {
                         >Cancel</BaseButton
                     >
                     <BaseButton
-                        type="submit"
+                        type="button"
                         variant="primary"
                         :isLoading="userStore.isLoading"
+                        @click="saveExperience"
                         >Save</BaseButton
                     >
                 </div>
-            </form>
+            </div>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <BaseModal
+        :isOpen="isDeleteModalOpen"
+        title="Delete Experience"
+        maxWidth="sm:max-w-md"
+        @close="cancelDelete"
+    >
+        <div class="flex flex-col items-center text-center p-4">
+            <div
+                class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4 text-red-600"
+            >
+                <AlertCircle class="w-6 h-6" />
+            </div>
+            <h3 class="text-lg font-medium text-text-base mb-2">
+                Are you sure?
+            </h3>
+            <p class="text-text-muted mb-6">
+                Do you really want to delete this experience at
+                <strong>{{ experienceToDelete?.company }}</strong
+                >? This process cannot be undone.
+            </p>
+        </div>
+
+        <template #footer>
+            <div class="flex w-full gap-3">
+                <BaseButton
+                    type="button"
+                    variant="secondary"
+                    class="flex-1"
+                    @click="cancelDelete"
+                >
+                    Cancel
+                </BaseButton>
+                <BaseButton
+                    type="button"
+                    variant="danger"
+                    class="flex-1"
+                    @click="handleDelete"
+                    :isLoading="userStore.isLoading"
+                >
+                    Delete
+                </BaseButton>
+            </div>
+        </template>
+    </BaseModal>
 </template>
