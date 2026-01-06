@@ -96,5 +96,71 @@ export const useUserStore = defineStore("user", {
                 this.isLoading = false;
             }
         },
+
+        async fetchUserProfile(userId) {
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/api/users/${userId}/profile`
+                );
+                // If null (404/empty), we return null, components handle empty form
+                return response.data.data;
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+                return null;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async updateUserProfile(userId, payload) {
+            this.isLoading = true;
+            this.errors = {};
+            const notificationStore = useNotificationStore();
+
+            try {
+                // Convert to FormData
+                const formData = new FormData();
+
+                for (const key in payload) {
+                    if (payload[key] !== null && payload[key] !== undefined) {
+                        // Convert boolean to 1/0 for backend validation or simple string
+                        if (typeof payload[key] === "boolean") {
+                            formData.append(key, payload[key] ? "1" : "0");
+                        } else {
+                            formData.append(key, payload[key]);
+                        }
+                    }
+                }
+
+                // POST request required for multipart/form-data
+                const response = await axios.post(
+                    `/api/users/${userId}/profile`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+
+                notificationStore.success(
+                    response.data.message || "Profil berhasil diperbarui"
+                );
+                return true;
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                } else {
+                    notificationStore.error(
+                        error.response?.data?.message ||
+                            "Gagal memperbarui profil"
+                    );
+                }
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        },
     },
 });

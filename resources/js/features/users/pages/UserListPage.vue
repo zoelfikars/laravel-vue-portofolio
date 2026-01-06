@@ -7,7 +7,8 @@ import BaseButton from "../../../components/BaseButton.vue";
 import BaseInput from "../../../components/BaseInput.vue";
 import BaseModal from "../../../components/BaseModal.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
-import { Edit2, Trash2, Plus, Search } from "lucide-vue-next";
+import UserProfileForm from "../components/UserProfileForm.vue";
+import { Edit2, Trash2, Plus, Search, UserCog } from "lucide-vue-next";
 
 const userStore = useUserStore();
 
@@ -109,6 +110,20 @@ const closeDeleteModal = () => {
 // Delete Modal State
 const isDeleteModalOpen = ref(false);
 const userToDelete = ref(null);
+
+// Profile Modal State
+const isProfileModalOpen = ref(false);
+const selectedUserForProfile = ref(null);
+
+const openProfileModal = (user) => {
+    selectedUserForProfile.value = user;
+    isProfileModalOpen.value = true;
+};
+
+const closeProfileModal = () => {
+    isProfileModalOpen.value = false;
+    selectedUserForProfile.value = null;
+};
 
 onMounted(() => {
     fetchUsers();
@@ -280,6 +295,13 @@ onMounted(() => {
                                 </td>
                                 <td class="px-6 py-4 text-right space-x-2">
                                     <button
+                                        @click="openProfileModal(user)"
+                                        class="text-text-muted hover:text-primary transition-colors"
+                                        title="Manage Profile"
+                                    >
+                                        <UserCog class="w-4 h-4" />
+                                    </button>
+                                    <button
                                         @click="openEditModal(user)"
                                         class="text-text-muted hover:text-primary transition-colors"
                                         title="Edit"
@@ -435,6 +457,25 @@ onMounted(() => {
                         Cancel
                     </BaseButton>
                 </template>
+            </BaseModal>
+
+            <!-- User Profile Modal -->
+            <BaseModal
+                :isOpen="isProfileModalOpen"
+                :title="
+                    selectedUserForProfile
+                        ? `Manage Profile: ${selectedUserForProfile.name}`
+                        : 'Manage Profile'
+                "
+                @close="closeProfileModal"
+                maxWidth="sm:max-w-4xl"
+            >
+                <UserProfileForm
+                    v-if="selectedUserForProfile"
+                    :user="selectedUserForProfile"
+                    @success="closeProfileModal"
+                    @cancel="closeProfileModal"
+                />
             </BaseModal>
         </div>
     </AppLayout>

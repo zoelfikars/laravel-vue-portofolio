@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\UserProfile\Models\UserProfile;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
@@ -29,5 +30,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
     }
 }
