@@ -4,6 +4,7 @@ import { useUserStore } from "../stores/userStore";
 import BaseInput from "../../../components/BaseInput.vue";
 import BaseTextarea from "../../../components/BaseTextarea.vue";
 import BaseToggle from "../../../components/BaseToggle.vue";
+import BaseDateInput from "../../../components/BaseDateInput.vue";
 import BaseFileUpload from "../../../components/BaseFileUpload.vue";
 import BaseButton from "../../../components/BaseButton.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
@@ -102,9 +103,8 @@ onMounted(() => {
                     placeholder="City name"
                     :error="userStore.errors.place_of_birth?.[0]"
                 />
-                <BaseInput
+                <BaseDateInput
                     v-model="form.date_of_birth"
-                    type="date"
                     label="Date of Birth"
                     :error="userStore.errors.date_of_birth?.[0]"
                 />

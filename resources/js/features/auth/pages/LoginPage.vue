@@ -54,7 +54,7 @@ onMounted(() => {
         </h2>
 
         <!-- Card -->
-        <div class="w-full max-w-[340px]">
+        <div class="w-full max-w-sm">
             <BaseCard>
                 <form @submit.prevent="handleLogin" class="space-y-4">
                     <!-- General Error -->
@@ -111,7 +111,7 @@ onMounted(() => {
 
         <!-- Footer link -->
         <p
-            class="mt-8 text-center text-xs text-text-muted border-t border-border-base pt-4 w-full max-w-[340px]"
+            class="mt-8 text-center text-xs text-text-muted border-t border-border-base pt-4 w-full max-w-sm"
         >
             New to Portfolio?
             <span class="text-primary hover:underline cursor-not-allowed"

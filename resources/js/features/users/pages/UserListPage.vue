@@ -135,12 +135,20 @@ onMounted(() => {
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <div
-                class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"
             >
-                <h2 class="text-2xl font-bold text-text-base">
-                    User Management
-                </h2>
-                <div class="flex items-center gap-4 w-full sm:w-auto">
+                <div>
+                    <h2 class="text-2xl font-bold text-text-base">
+                        User Management
+                    </h2>
+                    <p class="text-sm text-text-muted mt-1">
+                        Manage system users and access.
+                    </p>
+                </div>
+
+                <div
+                    class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto"
+                >
                     <!-- Search -->
                     <div class="relative w-full sm:w-64">
                         <div
@@ -157,7 +165,10 @@ onMounted(() => {
                         />
                     </div>
 
-                    <BaseButton @click="openCreateModal">
+                    <BaseButton
+                        @click="openCreateModal"
+                        class="w-full sm:w-auto justify-center"
+                    >
                         <Plus class="w-4 h-4 mr-2" />
                         Add User
                     </BaseButton>
@@ -165,9 +176,9 @@ onMounted(() => {
             </div>
 
             <!-- Table Card -->
-            <BaseCard class="p-0 overflow-hidden">
+            <BaseCard class="p-0 overflow-hidden text-sm">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-text-muted">
+                    <table class="w-full text-left text-text-muted">
                         <thead
                             class="text-xs text-text-muted uppercase bg-bg-base border-b border-border-base"
                         >
@@ -323,10 +334,10 @@ onMounted(() => {
 
                 <!-- Pagination -->
                 <div
-                    class="bg-bg-base/50 px-4 py-3 border-t border-border-base flex items-center justify-between sm:px-6 transition-colors duration-200"
+                    class="bg-bg-base/50 px-4 py-3 border-t border-border-base flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 transition-colors duration-200"
                 >
                     <div
-                        class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
+                        class="flex-1 flex flex-col sm:flex-row items-center justify-between w-full"
                     >
                         <div>
                             <p class="text-sm text-text-muted">
