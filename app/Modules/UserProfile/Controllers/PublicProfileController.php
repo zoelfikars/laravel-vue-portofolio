@@ -3,10 +3,12 @@
 namespace App\Modules\UserProfile\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Project\Models\Project;
 use App\Modules\UserProfile\Services\UserProfileService;
 use App\Modules\UserProfile\Resources\UserProfileResource;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Storage;
+use Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PublicProfileController extends Controller
@@ -51,5 +53,17 @@ class PublicProfileController extends Controller
         }
 
         return Storage::download($path);
+    }
+    public function streamProjectThumbnail($id)
+    {
+        $project = Project::findOrFail($id);
+        Log::info($id);
+        Log::info($project->toArray());
+
+        if (!$project->thumbnail_path || !Storage::exists($project->thumbnail_path)) {
+            abort(404);
+        }
+
+        return Storage::response($project->thumbnail_path);
     }
 }

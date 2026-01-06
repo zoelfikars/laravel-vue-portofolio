@@ -7,28 +7,30 @@ use App\Modules\User\Models\Experience;
 
 class ExperiencePolicy
 {
-    public function viewAny(User $user, User $targetUser)
+    public function before(User $user)
     {
-        return $user->hasRole('super-admin') || $user->id === $targetUser->id;
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
     }
 
     public function view(User $user, Experience $experience)
     {
-        return $user->hasRole('super-admin') || $user->id === $experience->user_id;
+        return $user->id === $experience->user_id;
     }
 
     public function create(User $user, User $targetUser)
     {
-        return $user->hasRole('super-admin') || $user->id === $targetUser->id;
+        return false;
     }
 
     public function update(User $user, Experience $experience)
     {
-        return $user->hasRole('super-admin') || $user->id === $experience->user_id;
+        return $user->id === $experience->user_id;
     }
 
     public function delete(User $user, Experience $experience)
     {
-        return $user->hasRole('super-admin') || $user->id === $experience->user_id;
+        return $user->id === $experience->user_id;
     }
 }

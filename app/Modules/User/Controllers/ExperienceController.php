@@ -8,11 +8,12 @@ use App\Modules\User\Models\Experience;
 use App\Modules\User\Requests\ExperienceRequest;
 use App\Modules\User\Resources\ExperienceResource;
 use App\Traits\ApiResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
 
 class ExperienceController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, AuthorizesRequests;
 
     public function index(User $user)
     {
@@ -26,10 +27,7 @@ class ExperienceController extends Controller
 
     public function store(User $user, ExperienceRequest $request)
     {
-        if (!Gate::allows('create', [Experience::class, $user])) {
-            return $this->error('Unauthorized', 403);
-        }
-
+        $this->authorize('create', [Experience::class, $user]);
         $data = $request->validated();
 
         if ($data['is_current'] ?? false) {
@@ -43,10 +41,7 @@ class ExperienceController extends Controller
 
     public function update(Experience $experience, ExperienceRequest $request)
     {
-        if (!Gate::allows('update', $experience)) {
-            return $this->error('Unauthorized', 403);
-        }
-
+        $this->authorize('update', $experience);
         $data = $request->validated();
 
         if ($data['is_current'] ?? false) {
@@ -60,10 +55,7 @@ class ExperienceController extends Controller
 
     public function destroy(Experience $experience)
     {
-        if (!Gate::allows('delete', $experience)) {
-            return $this->error('Unauthorized', 403);
-        }
-
+        $this->authorize('delete', $experience);
         $experience->delete();
 
         return $this->success(null, 'Experience deleted successfully');

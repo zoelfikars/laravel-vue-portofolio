@@ -2,6 +2,8 @@
 
 namespace App\Modules\UserProfile\Resources;
 
+use App\Modules\Project\Resources\ProjectResource;
+use App\Modules\User\Resources\ExperienceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,7 +18,7 @@ class UserProfileResource extends JsonResource
             $user->id === $this->user_id
         );
 
-        return [
+        $data = [
             'id' => $this->id,
             'user_id' => $this->user_id,
             'full_name' => $this->full_name,
@@ -29,10 +31,15 @@ class UserProfileResource extends JsonResource
                 ? route('public.profile.photo', ['id' => $this->id])
                 : null,
             'cv_url' => $this->resolveCvUrl($isPrivileged),
-            'hobbies' => $this->user->hobbies->pluck('name'),
-            'skills' => $this->user->skills->pluck('name'),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];
+        if ($this->relationLoaded('user')) {
+            $data['skills'] = $this->user->skills->pluck('name');
+            $data['hobbies'] = $this->user->hobbies->pluck('name');
+            $data['experiences'] = ExperienceResource::collection($this->user->experiences);
+            $data['projects'] = ProjectResource::collection($this->user->projects);
+        }
+        return $data;
     }
     protected function resolveCvUrl(bool $isPrivileged): ?string
     {

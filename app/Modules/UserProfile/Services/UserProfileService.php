@@ -64,8 +64,22 @@ class UserProfileService
 
     public function getActiveProfile()
     {
-        return UserProfile::with('user:id,name,email')
-            ->where('is_active', true)
+        return UserProfile::where('is_active', true)
+            ->with([
+                'user' => function ($query) {
+                    $query->select('id', 'name', 'email')
+                        ->with([
+                            'skills:id,name',           
+                            'hobbies:id,name',          
+                            'experiences',              
+                            'projects' => function ($q) { 
+                                $q->whereNotNull('published_at')
+                                    ->orderBy('published_at', 'desc')
+                                    ->with('techStack:id,name'); 
+                            }
+                        ]);
+                }
+            ])
             ->first();
     }
     public function getFilePath($id, $type, $bypassActiveCheck = false)

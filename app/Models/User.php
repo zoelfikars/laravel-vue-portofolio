@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\Project\Models\Project;
 use App\Modules\User\Models\Experience;
 use App\Modules\User\Models\Hobby;
 use App\Modules\User\Models\Skill;
@@ -52,5 +53,9 @@ class User extends Authenticatable
     public function experiences()
     {
         return $this->hasMany(Experience::class);
+    }
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
     }
 }

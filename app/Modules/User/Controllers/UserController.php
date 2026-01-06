@@ -9,12 +9,13 @@ use App\Modules\User\Resources\UserResource;
 use App\Modules\User\Services\UserService;
 use App\Traits\ApiResponse;
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, AuthorizesRequests;
     protected UserService $userService;
     public function __construct(UserService $userService)
     {
@@ -28,6 +29,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request): JsonResponse
     {
         try {
+            $this->authorize('create', User::class);
             $user = $this->userService->create($request->validated());
 
             return $this->success(new UserResource($user), 'User berhasil dibuat', 201);
@@ -37,11 +39,13 @@ class UserController extends Controller
     }
     public function show(User $user): JsonResponse
     {
+        $this->authorize('view', $user);
         return $this->success(new UserResource($user), 'Detail user berhasil diambil');
     }
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         try {
+            $this->authorize('update', $user);
             $user = $this->userService->update($user, $request->validated());
 
             return $this->success(new UserResource($user), 'User berhasil diperbarui');
@@ -52,8 +56,8 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         try {
+            $this->authorize('delete', $user);
             $this->userService->delete($user);
-
             return $this->success(null, 'User berhasil dihapus');
         } catch (\Exception $e) {
             return $this->error('Gagal menghapus user', 500, $e->getMessage());

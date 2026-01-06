@@ -68,12 +68,12 @@ const allowScroll = () => {
                         leave-to-class="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     >
                         <div
-                            class="relative transform overflow-hidden rounded-lg bg-bg-card text-left shadow-xl transition-all sm:my-8 w-full border border-border-base"
+                            class="relative transform overflow-hidden rounded-lg bg-bg-card text-left shadow-xl transition-all sm:my-8 w-full border border-border-base flex flex-col max-h-[90vh]"
                             :class="maxWidth"
                         >
                             <!-- Header -->
                             <div
-                                class="px-4 py-4 sm:px-6 bg-bg-card border-b border-border-base flex justify-between items-center transition-colors duration-200"
+                                class="px-4 py-4 sm:px-6 bg-bg-card border-b border-border-base flex justify-between items-center transition-colors duration-200 shrink-0"
                             >
                                 <h3
                                     class="text-lg leading-6 font-medium text-text-base"
@@ -91,7 +91,7 @@ const allowScroll = () => {
 
                             <!-- Body -->
                             <div
-                                class="px-4 pt-5 pb-4 sm:p-6 bg-bg-card transition-colors duration-200"
+                                class="px-4 pt-5 pb-4 sm:p-6 bg-bg-card transition-colors duration-200 overflow-y-auto flex-1"
                             >
                                 <slot></slot>
                             </div>
@@ -99,7 +99,7 @@ const allowScroll = () => {
                             <!-- Footer -->
                             <div
                                 v-if="$slots.footer"
-                                class="bg-bg-base px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-border-base transition-colors duration-200"
+                                class="bg-bg-base px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-border-base transition-colors duration-200 shrink-0"
                             >
                                 <slot name="footer"></slot>
                             </div>

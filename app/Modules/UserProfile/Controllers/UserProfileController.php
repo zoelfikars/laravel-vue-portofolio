@@ -4,16 +4,18 @@ namespace App\Modules\UserProfile\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\UserProfile\Models\UserProfile;
 use App\Modules\UserProfile\Requests\UpdateProfileRequest;
 use App\Modules\UserProfile\Resources\UserProfileResource;
 use App\Modules\UserProfile\Services\UserProfileService;
 use App\Traits\ApiResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Gate;
 use Storage;
 
 class UserProfileController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, AuthorizesRequests;
     protected $service;
     public function __construct(UserProfileService $service)
     {
@@ -38,7 +40,7 @@ class UserProfileController extends Controller
             $request->validated(),
             $request->allFiles()
         );
-
+        $this->authorize('create', [UserProfile::class]);
         return $this->success(new UserProfileResource($profile), 'Profile pengguna berhasil diperbarui');
     }
     public function downloadCv(User $user)
@@ -48,7 +50,7 @@ class UserProfileController extends Controller
         if (!$profile)
             abort(404);
 
-        Gate::authorize('view', $profile);
+        $this->authorize('view', $profile);
 
         $path = $this->service->getFilePath($profile->id, 'cv', true);
 
