@@ -4,6 +4,8 @@ import { useAuthStore } from "../stores/auth";
 import { useThemeStore } from "../stores/theme";
 import { useRouter } from "vue-router";
 import AppSidebar from "./partials/AppSidebar.vue";
+import ThemeToggle from "../components/ThemeToggle.vue";
+import PrimaryColorSelector from "../components/PrimaryColorSelector.vue";
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();

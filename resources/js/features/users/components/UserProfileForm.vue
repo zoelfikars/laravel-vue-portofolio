@@ -5,6 +5,7 @@ import BaseInput from "../../../components/BaseInput.vue";
 import BaseTextarea from "../../../components/BaseTextarea.vue";
 import BaseToggle from "../../../components/BaseToggle.vue";
 import BaseDateInput from "../../../components/BaseDateInput.vue";
+import BaseTagInput from "../../../components/BaseTagInput.vue";
 import BaseFileUpload from "../../../components/BaseFileUpload.vue";
 import BaseButton from "../../../components/BaseButton.vue";
 import BaseSkeleton from "../../../components/BaseSkeleton.vue";
@@ -28,6 +29,8 @@ const form = reactive({
     work_interest: "",
     summary: "",
     is_active: false,
+    hobbies: [],
+    skills: [],
     photo: null,
     cv: null,
 });
@@ -47,6 +50,8 @@ const fetchProfile = async () => {
         form.work_interest = profile.work_interest;
         form.summary = profile.summary;
         form.is_active = profile.is_active;
+        form.hobbies = profile.hobbies || [];
+        form.skills = profile.skills || [];
         existingPhotoUrl.value = profile.photo_url;
         existingCvUrl.value = profile.cv_url;
     } else {
@@ -136,6 +141,23 @@ onMounted(() => {
                     :error="userStore.errors.cv?.[0]"
                 />
             </div>
+
+            <!-- Hobbies -->
+            <BaseTagInput
+                v-model="form.hobbies"
+                label="Hobbies & Interests"
+                placeholder="Type and press Enter (e.g. Hiking, Photography)"
+                :error="userStore.errors.hobbies?.[0]"
+            />
+
+            <!-- Skills -->
+            <BaseTagInput
+                v-model="form.skills"
+                label="Skills & Expertise"
+                fetchUrl="/api/skills"
+                placeholder="e.g. Laravel, Vue.js, DevOps"
+                :error="userStore.errors.skills?.[0]"
+            />
 
             <!-- Settings -->
             <div class="pt-4 border-t border-border-base">

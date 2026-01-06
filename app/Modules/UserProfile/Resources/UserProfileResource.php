@@ -29,7 +29,8 @@ class UserProfileResource extends JsonResource
                 ? route('public.profile.photo', ['id' => $this->id])
                 : null,
             'cv_url' => $this->resolveCvUrl($isPrivileged),
-
+            'hobbies' => $this->user->hobbies->pluck('name'),
+            'skills' => $this->user->skills->pluck('name'),
             'updated_at' => $this->updated_at->toIso8601String(),
         ];
     }

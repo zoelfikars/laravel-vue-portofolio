@@ -3,13 +3,17 @@
 namespace App\Modules\UserProfile\Services;
 
 use App\Models\User;
+use App\Modules\User\Models\Hobby;
+use App\Modules\User\Models\Skill;
 use App\Modules\UserProfile\Models\UserProfile;
 use Illuminate\Support\Facades\Storage;
+use Str;
 
 class UserProfileService
 {
     public function getProfile(User $user)
     {
+        $user->load(['hobbies', 'skills']);
         return $user->profile;
     }
 
@@ -32,6 +36,26 @@ class UserProfileService
         if (isset($data['is_active']) && $data['is_active']) {
             UserProfile::query()->update(['is_active' => false]);
         }
+
+        if (isset($data['hobbies']) && is_array($data['hobbies'])) {
+            $hobbyIds = [];
+            foreach ($data['hobbies'] as $hobbyName) {
+                $cleanName = Str::title(trim($hobbyName));
+                $hobby = Hobby::firstOrCreate(['name' => $cleanName]);
+                $hobbyIds[] = $hobby->id;
+            }
+            $user->hobbies()->sync($hobbyIds);
+        }
+        if (isset($data['skills']) && is_array($data['skills'])) {
+            $skillIds = [];
+            foreach ($data['skills'] as $skillName) {
+                $cleanName = Str::title(trim($skillName));
+                $skill = Skill::firstOrCreate(['name' => $cleanName]);
+                $skillIds[] = $skill->id;
+            }
+            $user->skills()->sync($skillIds);
+        }
+
         return UserProfile::updateOrCreate(
             ['user_id' => $user->id],
             $data

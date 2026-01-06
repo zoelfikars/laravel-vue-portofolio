@@ -19,10 +19,14 @@ class UpdateProfileRequest extends FormRequest
             'place_of_birth' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date'],
             'work_interest' => ['nullable', 'string', 'max:255'],
-            'summary' => ['nullable', 'string'],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'summary' => 'nullable|string',
+            'is_active' => 'boolean',
+            'hobbies' => 'nullable|array',
+            'hobbies.*' => 'string|max:50|distinct',
+            'skills' => 'nullable|array',
+            'skills.*' => 'string|max:50|distinct',
+            'photo' => 'nullable|image|max:2048',
             'cv' => ['nullable', 'mimes:pdf', 'max:5120'],
-            'is_active' => ['nullable', 'boolean'],
         ];
     }
     public function messages()
@@ -42,6 +46,14 @@ class UpdateProfileRequest extends FormRequest
             'cv.mimes' => 'CV harus berupa PDF',
             'cv.max' => 'CV maksimal 5MB',
             'is_active.boolean' => 'Format status tidak valid (true/false)',
+            'hobbies.array' => 'Hobi harus berupa array',
+            'hobbies.*.string' => 'Hobi harus berupa string',
+            'hobbies.*.max' => 'Hobi maksimal 50 karakter',
+            'hobbies.*.distinct' => 'Hobi tidak boleh sama',
+            'skills.array' => 'Skill harus berupa array',
+            'skills.*.string' => 'Skill harus berupa string',
+            'skills.*.max' => 'Skill maksimal 50 karakter',
+            'skills.*.distinct' => 'Skill tidak boleh sama',
         ];
     }
 }

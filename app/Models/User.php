@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Modules\User\Models\Hobby;
+use App\Modules\User\Models\Skill;
 use App\Modules\UserProfile\Models\UserProfile;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,5 +36,15 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
+    }
+
+    public function hobbies()
+    {
+        return $this->belongsToMany(Hobby::class, 'hobby_user');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'skill_user');
     }
 }

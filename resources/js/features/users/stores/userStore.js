@@ -124,8 +124,14 @@ export const useUserStore = defineStore("user", {
 
                 for (const key in payload) {
                     if (payload[key] !== null && payload[key] !== undefined) {
-                        // Convert boolean to 1/0 for backend validation or simple string
-                        if (typeof payload[key] === "boolean") {
+                        // Handle Arrays (like hobbies)
+                        if (Array.isArray(payload[key])) {
+                            payload[key].forEach((item, index) => {
+                                formData.append(`${key}[${index}]`, item);
+                            });
+                        }
+                        // Convert boolean to 1/0
+                        else if (typeof payload[key] === "boolean") {
                             formData.append(key, payload[key] ? "1" : "0");
                         } else {
                             formData.append(key, payload[key]);
