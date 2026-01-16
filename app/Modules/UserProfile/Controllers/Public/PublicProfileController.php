@@ -59,6 +59,7 @@ class PublicProfileController extends Controller
         Log::info($id);
         Log::info($project->toArray());
 
+        $disk = config('filesystems.default');
         if (!$project->thumbnail_path || !Storage::disk($disk)->exists($project->thumbnail_path)) {
             abort(404);
         }
