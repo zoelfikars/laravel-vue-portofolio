@@ -1,0 +1,69 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ "main" ] # Trigger hanya kalau push ke main
+
+env:
+  # Ganti dengan nama image yang kamu mau
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .production/Dockerfile # Pake file dockerfile production
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            VITE_API_BASE_URL=${{ secrets.VITE_API_URL }}
+
+  deploy:
+    needs: build-and-push # Tunggu build selesai baru deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: |
+            # Login ke GitHub Registry dari dalam server
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Buat folder project kalau belum ada
+            mkdir -p ~/apps/portofolio
+            cd ~/apps/portofolio
+            
+            # Pull image terbaru
+            docker pull ghcr.io/${{ github.repository }}:latest
+            
+            # Restart container
+            # Kita asumsikan file docker-compose.yml sudah ada di server (Lihat Tahap 4)
+            docker compose down
+            docker compose up -d
+            
+            # Hapus image lama biar hemat disk
+            docker image prune -f

@@ -175,6 +175,21 @@ const quickSelectMonth = (index) => {
     currentMonth.value = index;
     showMonthPicker.value = false;
 };
+
+const setToday = () => {
+    const today = new Date();
+    selectedDate.value = today;
+    currentMonth.value = today.getMonth();
+    currentYear.value = today.getFullYear();
+    emit("update:modelValue", formattedDate.value);
+    isOpen.value = false;
+};
+
+const clearDate = () => {
+    selectedDate.value = null;
+    emit("update:modelValue", "");
+    isOpen.value = false;
+};
 </script>
 
 <template>
@@ -311,7 +326,7 @@ const quickSelectMonth = (index) => {
             </div>
 
             <!-- Days -->
-            <div class="grid grid-cols-7 gap-1">
+            <div class="grid grid-cols-7 gap-1 mb-3">
                 <button
                     type="button"
                     v-for="(day, index) in calendarDays"
@@ -327,6 +342,26 @@ const quickSelectMonth = (index) => {
                     ]"
                 >
                     {{ day.num }}
+                </button>
+            </div>
+
+            <!-- Footer Actions -->
+            <div
+                class="flex items-center justify-between pt-3"
+            >
+                <button
+                    type="button"
+                    @click="setToday"
+                    class="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                    Pick Today
+                </button>
+                <button
+                    type="button"
+                    @click="clearDate"
+                    class="text-xs font-medium text-red-500 hover:text-red-400 transition-colors"
+                >
+                    Clear
                 </button>
             </div>
         </div>

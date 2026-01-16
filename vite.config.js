@@ -8,6 +8,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export default defineConfig({
     plugins: [tailwindcss(), vue()],
+    build: {
+        outDir: 'public/build', 
+        emptyOutDir: true,
+        manifest: true, 
+        rollupOptions: {
+            input: 'resources/js/app.js', 
+        },
+    },
     server: {
         host: "0.0.0.0",
         port: 5173,

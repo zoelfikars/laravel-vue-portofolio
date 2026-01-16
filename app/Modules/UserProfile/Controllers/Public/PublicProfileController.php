@@ -35,23 +35,23 @@ class PublicProfileController extends Controller
     public function streamPhoto($id)
     {
         $path = $this->service->getFilePath($id, 'photo');
-
-        if (!$path || !Storage::exists($path)) {
+        $disk = config('filesystems.default');
+        if (!$path || !Storage::disk($disk)->exists($path)) {
             abort(404);
         }
 
-        return Storage::response($path);
+        return Storage::disk($disk)->response($path);
     }
 
     public function downloadCv($id)
     {
         $path = $this->service->getFilePath($id, 'cv', false);
-
-        if (!$path || !Storage::exists($path)) {
+        $disk = config('filesystems.default');
+        if (!$path || !Storage::disk($disk)->exists($path)) {
             abort(404);
         }
 
-        return Storage::download($path);
+        return Storage::disk($disk)->download($path);
     }
     public function streamProjectThumbnail($id)
     {
@@ -59,10 +59,10 @@ class PublicProfileController extends Controller
         Log::info($id);
         Log::info($project->toArray());
 
-        if (!$project->thumbnail_path || !Storage::exists($project->thumbnail_path)) {
+        if (!$project->thumbnail_path || !Storage::disk($disk)->exists($project->thumbnail_path)) {
             abort(404);
         }
 
-        return Storage::response($project->thumbnail_path);
+        return Storage::disk($disk)->response($project->thumbnail_path);
     }
 }

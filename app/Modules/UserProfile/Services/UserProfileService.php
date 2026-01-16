@@ -106,22 +106,32 @@ class UserProfileService
     public function getFilePath($id, $type, $bypassActiveCheck = false)
     {
         $profile = UserProfile::findOrFail($id);
+        $disk = config('filesystems.default');
         if ($type === 'cv') {
             if (!$bypassActiveCheck && !$profile->is_active) {
                 return null;
             }
+            $path = $profile->cv_path;
+            if (!$path || !Storage::disk($disk)->exists($path)) {
+                return null;
+            }
 
-            return $profile->cv_path;
+            return $path;
         }
         if ($type === 'photo') {
-            return $profile->photo_path;
+            $path = $profile->photo_path;
+            if (!$path || !Storage::disk($disk)->exists($path)) {
+                return null;
+            }
+            return $path;
         }
         return null;
     }
     public function verifyCvPath($profile)
     {
+        $disk = config('filesystems.default');
         $path = $profile->cv_path;
-        if (!$path || !Storage::exists($path)) {
+        if (!$path || !Storage::disk($disk)->exists($path)) {
             return null;
         }
         return $path;
