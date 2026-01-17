@@ -18,10 +18,11 @@ jobs:
 
     steps:
       - name: Checkout to Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tag: production
           version: latest
 
       - name: Log in to the Container registry
