@@ -35,6 +35,12 @@ COPY .production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data --from=frontend_builder /app/public/build ./public/build
 
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs \
+    bootstrap/cache
+
 RUN chmod -R 775 storage bootstrap/cache
 
 RUN composer dump-autoload --optimize --no-dev
