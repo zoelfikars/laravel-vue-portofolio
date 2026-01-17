@@ -8,7 +8,6 @@ env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
-  # JOB 1: BUILD (Tidak butuh VPN, karena dia kerja di Cloud GitHub)
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -34,45 +33,37 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest
 
-  # JOB 2: DEPLOY (Ini yang butuh VPN buat masuk ke Server kamu)
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
-      # 1. NYALAKAN VPN DI SINI
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           version: latest
 
-      # 2. SSH LEWAT VPN
-      - name: Deploy to Server via SSH
-        # KITA GANTI KE VERSI TERBARU (master) BIAR LEBIH PINTAR
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USERNAME }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          port: 22
-          timeout: 60s
-          command_timeout: 30m
-          # Parameter ini baru bisa jalan di versi master
-          command_args: "-o StrictHostKeyChecking=no"
-          debug: true # Kita nyalakan debug biar ketahuan salahnya dimana          
-          script: |
-            # Login ke GHCR
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # Masuk folder
+      - name: Deploy to Server via Native SSH
+        run: |
+          mkdir -p ~/.ssh
+          
+          echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/id_rsa
+          
+          chmod 600 ~/.ssh/id_rsa
+          
+          ls -l ~/.ssh/id_rsa
+          
+          
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.PROD_USERNAME }}@${{ secrets.PROD_HOST }} "
+            echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
             mkdir -p ~/app/laravue-portofolio
             cd ~/app/laravue-portofolio
-
-            # Pull & Restart
+            
             docker compose pull
             docker compose up -d
             
-            # Migrate & Clean
             docker compose exec -T app php artisan migrate --force
             docker image prune -f
+          "
