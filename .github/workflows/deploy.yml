@@ -46,9 +46,7 @@ jobs:
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          # Pastikan tag ini benar-benar ada di ACL Tailscale kamu!
-          # Kalau ragu, ganti jadi tag:ci (sesuai setup awal)
-          tags: tag:production 
+          tags: tag:ci 
           version: latest
 
       # 2. SSH LEWAT VPN
