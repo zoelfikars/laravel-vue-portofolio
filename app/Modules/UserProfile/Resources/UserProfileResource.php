@@ -50,7 +50,8 @@ class UserProfileResource extends JsonResource
             return null;
 
         if ($isPrivileged) {
-            $previewUrl = Storage::disk('s3')->temporaryUrl(
+            $disk = config('filesystems.default');
+            $previewUrl = Storage::disk($disk)->temporaryUrl(
                 $this->cv_path,
                 now()->addMinutes(30)
             );

@@ -1,0 +1,12 @@
+.git
+.github
+.env
+node_modules
+/vendor
+/storage
+/tests
+public/build
+public/storage
+docker-compose.yml
+Dockerfile
+README.md
