@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .
+      context: ..
       dockerfile: .production/Dockerfile
     container_name: portofolio-app
     restart: unless-stopped
@@ -13,7 +13,7 @@ services:
       - "traefik.http.routers.portofolio.rule=Host(`zoelfikars.site`) || Host(`api.zoelfikars.site`)"
       - "traefik.http.routers.portofolio.entrypoints=web"
       - "traefik.http.services.portofolio.loadbalancer.server.port=80"
-      
+
 networks:
   traefik_net:
     external: true
