@@ -16,7 +16,7 @@ class RolePermissionSeeder extends Seeder
             ['email' => 'admin@laravue.com'],
             [
                 'name' => 'Super Administrator',
-                'password' => 'password',
+                'password' => env('SUPER_ADMIN_PASSWORD', 'password'),
             ]
         );
         $admin->assignRole($roleSuperAdmin);
@@ -24,7 +24,7 @@ class RolePermissionSeeder extends Seeder
             ['email' => 'user@laravue.com'],
             [
                 'name' => 'Regular User',
-                'password' => 'password',
+                'password' => env('USER_PASSWORD', 'password'),
             ]
         );
         $user->assignRole($roleUser);
