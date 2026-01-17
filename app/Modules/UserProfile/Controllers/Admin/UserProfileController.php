@@ -50,7 +50,7 @@ class UserProfileController extends Controller
         if (!$profile)
             abort(404);
 
-        $this->authorize('view', $profile);
+        // $this->authorize('view', $profile);
 
         $path = $this->service->verifyCvPath($profile);
 
