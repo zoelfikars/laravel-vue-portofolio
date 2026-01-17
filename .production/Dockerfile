@@ -19,6 +19,10 @@ RUN apk add --no-cache \
     && docker-php-ext-configure gd --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql zip bcmath intl gd opcache
 
+RUN mkdir -p /run/nginx /var/lib/nginx/tmp /var/log/nginx /var/log/supervisor /run/supervisord \
+    && chown -R www-data:www-data /run/nginx /var/lib/nginx /var/log/nginx /var/log/supervisor /run/supervisord \
+    && chmod -R 775 /var/lib/nginx /run/nginx    
+
 WORKDIR /var/www/html
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -28,7 +32,6 @@ RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --no-a
 COPY .production/nginx.conf /etc/nginx/http.d/default.conf
 COPY .production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# PERBAIKAN TYPO DI SINI
 COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data --from=frontend_builder /app/public/build ./public/build
 
