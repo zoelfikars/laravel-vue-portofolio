@@ -13,15 +13,15 @@ export default defineConfig({
         tailwindcss(),
         vue(),
         laravel({
-            input: ["resources/js/app.js"],
+            input: ["resources/css/app.css", "resources/js/app.js"],
             refresh: true,
         }),
     ],
     build: {
         outDir: "public/build",
         emptyOutDir: true,
-        manifest: "manifest.json", 
-        
+        manifest: "manifest.json",
+
         rollupOptions: {
             input: "resources/js/app.js",
         },
