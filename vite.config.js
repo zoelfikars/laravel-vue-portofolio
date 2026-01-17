@@ -7,19 +7,21 @@ import laravel from "laravel-vite-plugin";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 export default defineConfig({
     plugins: [
         tailwindcss(),
         vue(),
         laravel({
-            input: ["resources/js/app.js"], // Sesuaikan path file JS utama kamu
+            input: ["resources/js/app.js"],
             refresh: true,
         }),
     ],
     build: {
         outDir: "public/build",
         emptyOutDir: true,
-        manifest: true,
+        manifest: "manifest.json", 
+        
         rollupOptions: {
             input: "resources/js/app.js",
         },
