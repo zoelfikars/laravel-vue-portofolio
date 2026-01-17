@@ -7,6 +7,7 @@ use App\Modules\Project\Resources\ProjectResource;
 use App\Modules\User\Resources\ExperienceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Storage;
 
 class UserProfileResource extends JsonResource
 {
@@ -49,7 +50,11 @@ class UserProfileResource extends JsonResource
             return null;
 
         if ($isPrivileged) {
-            return route('users.profile.cv', ['user' => $this->user_id]);
+            $previewUrl = Storage::disk('s3')->temporaryUrl(
+                $this->cv_path,
+                now()->addMinutes(30)
+            );
+            return $previewUrl;
         }
 
         return route('public.profile.cv', ['id' => $this->id]);
