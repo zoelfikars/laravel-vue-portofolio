@@ -20,9 +20,8 @@ jobs:
       - name: Checkout to Tailscale
         uses: tailscale/github-action@v2
         with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }} # Kalau pake OAuth
-          # ATAU pakai Auth Key (Kita pakai cara ini aja yg tadi kamu buat)
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           version: latest
 
       - name: Log in to the Container registry
