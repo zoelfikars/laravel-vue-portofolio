@@ -14,6 +14,9 @@ use App\Modules\UserProfile\Controllers\Public\PublicProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/secure/cv/{user}', [UserProfileController::class, 'streamCv'])
+    ->name('secure.stream.cv')
+    ->middleware('signed');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -23,7 +26,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('users', UserController::class);
         Route::get('/users/{user}/profile', [UserProfileController::class, 'show']);
         Route::post('/users/{user}/profile', [UserProfileController::class, 'store']);
-        Route::get('/users/{user}/profile/cv', [UserProfileController::class, 'streamCv'])->name('users.profile.cv');
 
         Route::get('/hobbies', [HobbyController::class, 'index']);
         Route::get('/skills', [SkillController::class, 'index']);

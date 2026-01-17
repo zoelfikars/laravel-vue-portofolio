@@ -14,6 +14,8 @@ use App\Modules\UserProfile\Models\UserProfile;
 use App\Modules\UserProfile\Policies\UserProfilePolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Config;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
     }
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+        URL::forceRootUrl(Config::get('app.url'));
         Gate::policy(UserProfile::class, UserProfilePolicy::class);
         Gate::policy(Experience::class, ExperiencePolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);

@@ -3,11 +3,10 @@
 namespace App\Modules\UserProfile\Resources;
 
 use App\Modules\Project\Resources\ProjectListResource;
-use App\Modules\Project\Resources\ProjectResource;
 use App\Modules\User\Resources\ExperienceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Storage;
+use Illuminate\Support\Facades\URL;
 
 class UserProfileResource extends JsonResource
 {
@@ -50,12 +49,11 @@ class UserProfileResource extends JsonResource
             return null;
 
         if ($isPrivileged) {
-            $disk = config('filesystems.default');
-            $previewUrl = Storage::disk($disk)->temporaryUrl(
-                $this->cv_path,
-                now()->addMinutes(30)
+            return URL::temporarySignedRoute(
+                'secure.stream.cv', // Nama route yang baru kita buat
+                now()->addMinutes(30),
+                ['user' => $this->user_id]
             );
-            return $previewUrl;
         }
 
         return route('public.profile.cv', ['id' => $this->id]);
