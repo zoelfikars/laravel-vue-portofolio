@@ -43,7 +43,7 @@ class UserProfileController extends Controller
         );
         return $this->success(new UserProfileResource($profile), 'Profile pengguna berhasil diperbarui');
     }
-    public function downloadCv(User $user)
+    public function streamCv(User $user)
     {
         $profile = $this->service->getProfile($user);
 
@@ -58,6 +58,10 @@ class UserProfileController extends Controller
             abort(404, 'File CV belum diunggah.');
         }
 
-        return Storage::download($path);
+        $disk = config('filesystems.default');
+        return Storage::disk($disk)->response($path, null, [
+            'Content-Type' => 'application/pdf', // Paksa tipe PDF (opsional, storage biasanya otomatis)
+            'Content-Disposition' => 'inline; filename="cv.pdf"' // 'inline' membuat browser membukanya
+        ]);
     }
 }

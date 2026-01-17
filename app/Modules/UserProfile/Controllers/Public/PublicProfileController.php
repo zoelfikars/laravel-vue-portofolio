@@ -43,7 +43,7 @@ class PublicProfileController extends Controller
         return Storage::disk($disk)->response($path);
     }
 
-    public function downloadCv($id)
+    public function streamCv($id)
     {
         $path = $this->service->getFilePath($id, 'cv', false);
         $disk = config('filesystems.default');
@@ -51,7 +51,10 @@ class PublicProfileController extends Controller
             abort(404);
         }
 
-        return Storage::disk($disk)->download($path);
+        return Storage::disk($disk)->response($path, null, [
+            'Content-Type' => 'application/pdf', // Paksa tipe PDF (opsional, storage biasanya otomatis)
+            'Content-Disposition' => 'inline; filename="cv.pdf"' // 'inline' membuat browser membukanya
+        ]);
     }
     public function streamProjectThumbnail($id)
     {

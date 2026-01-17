@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('users', UserController::class);
         Route::get('/users/{user}/profile', [UserProfileController::class, 'show']);
         Route::post('/users/{user}/profile', [UserProfileController::class, 'store']);
-        Route::get('/users/{user}/profile/cv', [UserProfileController::class, 'downloadCv'])->name('users.profile.cv');
+        Route::get('/users/{user}/profile/cv', [UserProfileController::class, 'streamCv'])->name('users.profile.cv');
 
         Route::get('/hobbies', [HobbyController::class, 'index']);
         Route::get('/skills', [SkillController::class, 'index']);
@@ -53,7 +53,7 @@ Route::prefix('public')->group(function () {
 
     // Assets Stream
     Route::get('/profile/photo/{id}', [PublicProfileController::class, 'streamPhoto'])->name('public.profile.photo');
-    Route::get('/profile/cv/{id}', [PublicProfileController::class, 'downloadCv'])->name('public.profile.cv');
+    Route::get('/profile/cv/{id}', [PublicProfileController::class, 'streamCv'])->name('public.profile.cv');
     Route::get('/project/thumbnail/{id}', [PublicProfileController::class, 'streamProjectThumbnail'])->name('public.project.thumbnail');
 
     // Dedicated Lists
