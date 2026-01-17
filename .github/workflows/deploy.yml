@@ -5,11 +5,10 @@ on:
     branches: [ "main" ]
 
 env:
-  # Ganti dengan nama image yang kamu mau
-  # Format: ghcr.io/username-github/nama-repo
   IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
+  # JOB 1: BUILD (Tidak butuh VPN, karena dia kerja di Cloud GitHub)
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -17,13 +16,8 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout to Tailscale
-        uses: tailscale/github-action@v4
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:production
-          version: latest
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -36,41 +30,49 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Pastikan path ini sesuai dengan lokasi Dockerfile production kamu
           file: ./.production/Dockerfile
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest
 
+  # JOB 2: DEPLOY (Ini yang butuh VPN buat masuk ke Server kamu)
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
+      # 1. NYALAKAN VPN DI SINI
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          # Pastikan tag ini benar-benar ada di ACL Tailscale kamu!
+          # Kalau ragu, ganti jadi tag:ci (sesuai setup awal)
+          tags: tag:production 
+          version: latest
+
+      # 2. SSH LEWAT VPN
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_HOST }}
+          host: ${{ secrets.PROD_HOST }} # IP Tailscale (100.x.x.x)
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           port: 22
-          timeout: 30s
+          timeout: 60s
           command_timeout: 30m
           script: |
-            # 1. Login ke GHCR di dalam server (supaya bisa pull)
+            # Login ke GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # 2. Masuk ke folder project
+            # Masuk folder
             mkdir -p ~/app/laravue-portofolio
             cd ~/app/laravue-portofolio
 
-            # 3. Pull image terbaru
+            # Pull & Restart
             docker compose pull
-
-            # 4. Restart container (Update aplikasi)
             docker compose up -d
-
-            # 5. Jalankan migrasi database (Opsional, hapus jika tidak perlu otomatis)
+            
+            # Migrate & Clean
             docker compose exec -T app php artisan migrate --force
-
-            # 6. Bersihkan image lama biar disk gak penuh
             docker image prune -f
