@@ -49,15 +49,18 @@ jobs:
 
       # 2. SSH LEWAT VPN
       - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        # KITA GANTI KE VERSI TERBARU (master) BIAR LEBIH PINTAR
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PROD_HOST }} # IP Tailscale (100.x.x.x)
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           port: 22
           timeout: 60s
           command_timeout: 30m
+          # Parameter ini baru bisa jalan di versi master
           command_args: "-o StrictHostKeyChecking=no"
+          debug: true # Kita nyalakan debug biar ketahuan salahnya dimana          
           script: |
             # Login ke GHCR
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
