@@ -17,8 +17,13 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }} # Kalau pake OAuth
+          # ATAU pakai Auth Key (Kita pakai cara ini aja yg tadi kamu buat)
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          version: latest
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -48,6 +53,8 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           port: 22
+          timeout: 30s
+          command_timeout: 30m
           script: |
             # 1. Login ke GHCR di dalam server (supaya bisa pull)
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
