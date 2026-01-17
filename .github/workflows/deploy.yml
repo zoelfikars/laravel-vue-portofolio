@@ -14,20 +14,13 @@ jobs:
 
       - name: Build and Deploy Docker
         run: |
-          # 1. Copy .env ke folder root (karena kita akan jalan dari root)
-          cp ~/app/laravue-portofolio/.env .env
+          cp $HOME/app/laravue-portofolio/.env .production/.env
           
-          # 2. Jalankan docker compose dengan menunjuk file di folder .production
-          # Gunakan flag -f untuk menunjuk lokasi file compose-nya
           docker compose -f .production/docker-compose.yml down --remove-orphans
           docker compose -f .production/docker-compose.yml up -d --build
           
-          # 3. Beri jeda agar container stabil
           sleep 5
           
-          # 4. Eksekusi migrasi
-          # Nama container biasanya otomatis jadi: production-app-1 atau sesuai container_name
           docker compose -f .production/docker-compose.yml exec -T app php artisan migrate --force
           
-          # 5. Bersihkan image lama
           docker image prune -f
