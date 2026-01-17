@@ -39,9 +39,9 @@ RUN mkdir -p storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
     storage/logs \
-    bootstrap/cache
-
-RUN chmod -R 775 storage bootstrap/cache
+    bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 RUN composer dump-autoload --optimize --no-dev
 
