@@ -2,12 +2,12 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [ "main" ] # Trigger hanya kalau push ke main
+    branches: [ "main" ]
 
 env:
   # Ganti dengan nama image yang kamu mau
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # Format: ghcr.io/username-github/nama-repo
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -17,13 +17,13 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,39 +31,39 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: .production/Dockerfile # Pake file dockerfile production
+          # Pastikan path ini sesuai dengan lokasi Dockerfile production kamu
+          file: ./.production/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          build-args: |
-            VITE_API_BASE_URL=${{ secrets.VITE_API_URL }}
+          tags: ${{ env.IMAGE_NAME }}:latest
 
   deploy:
-    needs: build-and-push # Tunggu build selesai baru deploy
+    needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           port: 22
           script: |
-            # Login ke GitHub Registry dari dalam server
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Buat folder project kalau belum ada
-            mkdir -p ~/apps/portofolio
-            cd ~/apps/portofolio
-            
-            # Pull image terbaru
-            docker pull ghcr.io/${{ github.repository }}:latest
-            
-            # Restart container
-            # Kita asumsikan file docker-compose.yml sudah ada di server (Lihat Tahap 4)
-            docker compose down
+            # 1. Login ke GHCR di dalam server (supaya bisa pull)
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # 2. Masuk ke folder project
+            mkdir -p ~/app/laravue-portofolio
+            cd ~/app/laravue-portofolio
+
+            # 3. Pull image terbaru
+            docker compose pull
+
+            # 4. Restart container (Update aplikasi)
             docker compose up -d
-            
-            # Hapus image lama biar hemat disk
+
+            # 5. Jalankan migrasi database (Opsional, hapus jika tidak perlu otomatis)
+            docker compose exec -T app php artisan migrate --force
+
+            # 6. Bersihkan image lama biar disk gak penuh
             docker image prune -f

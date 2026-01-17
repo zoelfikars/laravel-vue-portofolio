@@ -32,4 +32,5 @@ RUN chown -R www-data:www-data /var/www/html
 USER www-data
 
 EXPOSE 9000
+COPY .docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 CMD ["php-fpm"]

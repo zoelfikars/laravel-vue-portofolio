@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
-import { UploadCloud, FileText, Image as ImageIcon, X } from "lucide-vue-next";
+import { FileText, Image as ImageIcon, X } from "lucide-vue-next";
 
 const props = defineProps({
     modelValue: {

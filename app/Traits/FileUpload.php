@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 trait FileUpload
 {
-    protected function uploadFile(UploadedFile $file, string $folder, ?string $oldPath = null, string $disk = 'local'): string
+    protected function uploadFile(UploadedFile $file, string $folder, ?string $oldPath = null, string $disk = 's3'): string
     {
         $disk = $disk ?? config('filesystems.default');
         if ($oldPath && Storage::disk($disk)->exists($oldPath)) {
@@ -14,7 +14,7 @@ trait FileUpload
         }
         return $file->store($folder, ['disk' => $disk, 'visibility' => 'private']);
     }
-    protected function deleteFile(?string $path, string $disk = 'local'): void
+    protected function deleteFile(?string $path, string $disk = 's3'): void
     {
         if ($path && Storage::disk($disk)->exists($path)) {
             Storage::disk($disk)->delete($path);

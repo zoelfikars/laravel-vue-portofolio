@@ -22,7 +22,6 @@ class UserProfileService
         }
         return $profile;
     }
-
     public function saveProfile(User $user, array $data, $files = [])
     {
         if (isset($files['photo'])) {
