@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -18,14 +19,14 @@ return new class extends Migration {
             throw new \Exception('Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         }
         Schema::create($tableNames['permissions'], static function (Blueprint $table) {
-            $table->uuid('id')->primary(); // UUID Primary Key
+            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()')); // UUID Primary Key
             $table->string('name');
             $table->string('guard_name');
             $table->timestamps();
             $table->unique(['name', 'guard_name']);
         });
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
-            $table->uuid('id')->primary(); // UUID Primary Key
+            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()')); // UUID Primary Key
             if ($teams || config('permission.testing')) {
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
