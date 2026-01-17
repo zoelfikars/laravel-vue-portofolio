@@ -14,9 +14,18 @@ jobs:
 
       - name: Build and Deploy Docker
         run: |
-          cp ~/app/laravue-portofolio/.env ./.env
-          docker network inspect traefik_net >/dev/null 2>&1 || docker network create traefik_net
-          docker compose up -d --build --remove-orphans
+          # Copy .env ke folder .production supaya terbaca oleh docker compose
+          cp ~/app/laravue-portofolio/.env ./.production/.env
+          
+          # Pindah ke folder production
+          cd .production
+          
+          # Bersihkan total dan build
+          docker compose down --volumes --remove-orphans
+          docker compose up -d --build
+          
+          # Tunggu agar PHP-FPM siap
           sleep 5
+          
+          # Eksekusi migrasi (nama service harus sesuai di .production/docker-compose.yml)
           docker compose exec -T app php artisan migrate --force
-          docker image prune -f
