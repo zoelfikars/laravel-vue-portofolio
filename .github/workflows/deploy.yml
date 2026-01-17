@@ -14,11 +14,8 @@ jobs:
 
       - name: Build and Deploy Docker
         run: |
-          docker compose build --pull
-          
-          docker compose up -d --remove-orphans
-          
+          cp ~/app/laravue-portofolio/.env ./.env
+          docker network inspect traefik_net >/dev/null 2>&1 || docker network create traefik_net
+          docker compose up -d --build --remove-orphans
           docker compose exec -T app php artisan migrate --force
-          docker compose exec -T app php artisan optimize
-          
           docker image prune -f
