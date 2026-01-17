@@ -21,10 +21,11 @@ Route::get('/{any?}', function () {
     return view('app');
 })->where('any', '.*');
 
-Route::get('/debug-url', function() {
+Route::get('/debug-url', function () {
     return [
         'url_yang_laravel_lihat' => request()->url(),
         'apakah_secure' => request()->secure(),
         'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
+        'test' => 'jir',
     ];
 });
