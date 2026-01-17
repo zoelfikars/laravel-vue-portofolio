@@ -17,36 +17,25 @@ FROM php:8.3-fpm-alpine
 RUN apk add --no-cache \
     postgresql-dev libzip-dev zip unzip icu-dev libpng-dev jpeg-dev nginx supervisor \
     && docker-php-ext-configure gd --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql zip bcmath intl gd opcache \
-    && sed -i 's/82/1000/g' /etc/passwd \
-    && sed -i 's/82/1000/g' /etc/group \
-    && mkdir -p /run/nginx \
-    && chown -R www-data:www-data /run/nginx /var/lib/nginx /var/log/nginx
+    && docker-php-ext-install pdo pdo_pgsql zip bcmath intl gd opcache
 
 WORKDIR /var/www/html
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist
+RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --no-autoloader
 
 COPY .production/nginx.conf /etc/nginx/http.d/default.conf
 COPY .production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-COPY --chown=www-data:www-data . .
+COPY --chown=www-data:ww-wdata . .
 COPY --chown=www-data:www-data --from=frontend_builder /app/public/build ./public/build
 
-RUN mkdir -p storage/framework/sessions \
-    storage/framework/views \
-    storage/framework/cache \
-    storage/logs \
-    bootstrap/cache \
+RUN composer dump-autoload --optimize --no-dev \
+    && mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-RUN composer dump-autoload --optimize --no-dev
-
 USER www-data
-
 EXPOSE 80
-
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

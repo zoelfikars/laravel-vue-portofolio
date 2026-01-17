@@ -14,17 +14,11 @@ jobs:
 
       - name: Build and Deploy Docker
         run: |
-          # Pindah ke direktori tempat docker-compose kamu berada (opsional)
-          # cd ~/app/laravue-portofolio 
+          docker compose build --pull
           
-          # Build image secara lokal (lebih cepat, tanpa internet)
-          docker build -t laravue-app:latest -f ./.production/Dockerfile .
+          docker compose up -d --remove-orphans
           
-          # Restart container
-          docker compose up -d
-          
-          # Jalankan artisan commands
           docker compose exec -T app php artisan migrate --force
+          docker compose exec -T app php artisan optimize
           
-          # Bersihkan image lama yang tidak terpakai
           docker image prune -f
