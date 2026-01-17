@@ -1,15 +1,13 @@
 <?php
 namespace Database\Seeders;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 use App\Models\User;
 
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
         $roleSuperAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $roleUser = Role::firstOrCreate(['name' => 'user']);
         $admin = User::firstOrCreate(
