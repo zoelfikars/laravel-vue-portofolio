@@ -28,7 +28,8 @@ RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --no-a
 COPY .production/nginx.conf /etc/nginx/http.d/default.conf
 COPY .production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-COPY --chown=www-data:ww-wdata . .
+# PERBAIKAN TYPO DI SINI
+COPY --chown=www-data:www-data . .
 COPY --chown=www-data:www-data --from=frontend_builder /app/public/build ./public/build
 
 RUN composer dump-autoload --optimize --no-dev \

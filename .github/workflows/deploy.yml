@@ -17,5 +17,6 @@ jobs:
           cp ~/app/laravue-portofolio/.env ./.env
           docker network inspect traefik_net >/dev/null 2>&1 || docker network create traefik_net
           docker compose up -d --build --remove-orphans
+          sleep 5
           docker compose exec -T app php artisan migrate --force
           docker image prune -f
